@@ -36,7 +36,7 @@ int divide(int dividend, int divisor) {
 
      if (dividend == -2147483648) positiveDividend = 2147483648u;
      else positiveDividend = pDividendBool ? dividend : -dividend;
-
+     
      if (divisor == -2147483648) positiveDivisor = 2147483648u;
      else positiveDivisor = pDivisorBool ? divisor : -divisor;
 
