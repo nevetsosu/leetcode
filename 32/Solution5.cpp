@@ -10,82 +10,71 @@ class Solution {
   };
 
   string s;
-  uint index; 
+  uint index;
+  uint max;
   Mode mode;
   
   uint counter = 0;
 
 private:
-  int recurse(int nest = 0) {
-    cerr << this->counter++ << endl;
+  int recurse(int prevLength = 0, int nest = 0) {
+    bool state = (nest > 0); 
     int length = 0;
-    bool state = false;
-
-    auto update = [&length, this](int l) {
-      switch (this->mode) { 
-        case Mode::Add:
-          length += 2;
-          break;
-        case Mode::Compare:
-          length = length > l ? length : l;
-          break;
-      }
-    };
 
     while (this->index < this->s.length()) {
-      cerr << "index: " << this->index << ", char: " << this->s[this->index] << endl;
-
+      // '('
       if (this->s[this->index] == '(') {
-        if (state == false) {
-          cerr << "setting state" << endl;
-          state = true;
+        if (state == true) {
+          index++;
+          length += recurse(prevLength + length, nest + 1);
         }
         else {
-          cerr << "recursing forward" << endl;
-          index++;
-          update(recurse(nest + 1));
+          state = true;
         }
       }
-
-      // match ')'
+      // ')'
       else {
-        if (state == true) {
-          cerr << "adding 2 to length" << endl;
-          length += 2;
+        if (nest > 0) {
           state = false;
-        }
-        else if (nest > 0) {
-          cerr << "stopping unnest" << endl;
-          index++;
+
+          length += 2;
           break;
-        } else {
-          cerr << "passing forward" << endl;
+        }
+        else if (state == true) {
+          state = false; 
+          length += 2;
           index++;
-          int l = recurse(0);
-          length = length > l ? length : l;
-          break; 
+          length += recurse(prevLength + length, nest);
+        }
+        else {
+          index++;
+          int l = recurse(0, 0);
+          return (max > l) ? max : l;
         }
       }
-      
       index++;
     }
     
-    this->mode = state ? Mode::Compare : Mode::Add;
-    return length;
+    this->max = (this->max > (prevLength + length)) ? this->max : (prevLength + length);
+    return state ? 0 : length;
   }
 
 public:
   int longestValidParentheses(string s) {
     this->index = 0;
+    this->max = 0;
     this->mode = Mode::Add;
     this->s = s;
 
-    return recurse(); 
+    int l = recurse();
+    this->max = this->max > l ? this->max : l;
+
+    return max; 
   }
   
 };
 
 int main() {
-  int length = Solution().longestValidParentheses("()(())");
+  int length = Solution().longestValidParentheses(")()())())())");
   cout << length << endl;
 }
